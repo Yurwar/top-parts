@@ -1,0 +1,11 @@
+language: java
+jdk:
+    - openjdk11
+sudo: true
+before_install:
+    - chmod +x mvnw
+    - chmod +w $HOME/.m2
+cache:
+    directories:
+        - .autoconf
+        - $HOME/.m2
