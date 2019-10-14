@@ -6,7 +6,6 @@
         <groupId>com.topparts</groupId>
         <artifactId>top-parts</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <artifactId>price-supplier</artifactId>
     <version>0.0.1-SNAPSHOT</version>
