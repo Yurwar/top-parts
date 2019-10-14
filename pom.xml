@@ -13,6 +13,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>top-parts</name>
 	<description>Web application for online auto parts store</description>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>price-supplier</module>
+        <module>search-supplier</module>
+	</modules>
 
 	<properties>
 		<java.version>11</java.version>
