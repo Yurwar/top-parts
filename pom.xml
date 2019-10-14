@@ -16,6 +16,7 @@
 
 	<modules>
 		<module>price-supplier</module>
+        <module>search-supplier</module>
 	</modules>
 
 	<properties>
