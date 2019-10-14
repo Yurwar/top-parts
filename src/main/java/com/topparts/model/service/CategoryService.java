@@ -1,42 +1,22 @@
 package com.topparts.model.service;
 
 import com.topparts.model.entity.Category;
-import com.topparts.model.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
-public class CategoryService {
-    private CategoryRepository categoryRepository;
+public interface CategoryService {
+    void createCategory(Category category);
 
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    Optional<Category> getCategoryById(Long id);
 
-    public void createCategory(Category category) {
-        categoryRepository.save(category);
-    }
+    List<Category> getAllCategories();
 
-    public Optional<Category> getCategoryById(Long id) {
-        return categoryRepository.findById(id);
-    }
+    List<Category> getAllRootCategories();
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
-    }
+    void updateCategory(Category category);
 
-    public List<Category> getAllRootCategories() {
-        return categoryRepository.getAllCategoriesByParentCategoryIsNull();
-    }
-
-    public void updateCategory(Category category) {
-        categoryRepository.save(category);
-    }
-
-    public void deleteCategory(Category category) {
-        categoryRepository.delete(category);
-    }
+    void deleteCategory(Category category);
 }
