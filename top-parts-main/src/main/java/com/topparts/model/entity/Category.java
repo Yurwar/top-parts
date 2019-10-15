@@ -3,7 +3,7 @@ package com.topparts.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -31,15 +31,5 @@ public class Category {
 
     @ElementCollection(targetClass = String.class)
     private Set<String> properties;
-
-    public Set<String> getAllProperties() {
-        Set<String> result = new HashSet<>(properties);
-
-        if (!Objects.isNull(parentCategory)) {
-            result.addAll(parentCategory.getAllProperties());
-        }
-
-        return result;
-    }
 
 }

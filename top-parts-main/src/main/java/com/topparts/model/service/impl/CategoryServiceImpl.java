@@ -6,6 +6,7 @@ import com.topparts.model.service.CategoryService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -28,15 +29,12 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findAll();
     }
 
-    public List<Category> getAllRootCategories() {
-        return categoryRepository.getAllCategoriesByParentCategoryIsNull();
-    }
-
-    public void updateCategory(Category category) {
+    public void updateCategory(Long id, Category category) {
+        categoryRepository.findById(id).orElseThrow(NoSuchElementException::new);
         categoryRepository.save(category);
     }
 
-    public void deleteCategory(Category category) {
-        categoryRepository.delete(category);
+    public void deleteCategory(Long id) {
+        categoryRepository.deleteById(id);
     }
 }

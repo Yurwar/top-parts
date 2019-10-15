@@ -1,6 +1,5 @@
 package com.topparts.model.service;
 
-import com.topparts.model.entity.Category;
 import com.topparts.model.entity.Product;
 
 import java.util.List;
@@ -13,9 +12,9 @@ public interface ProductService {
 
     List<Product> getAllProducts();
 
-    List<Product> getAllProductsByCategory(Category category);
+    List<Product> getAllProductsByCategory(Long id);
 
-    void updateProduct(Product product);
+    void updateProduct(Long id, Product product);
 
-    void deleteProduct(Product product);
+    void deleteProduct(Long id);
 }
