@@ -25,6 +25,12 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
+    @Column
+    private String description;
+
+    @Column(nullable = false)
+    private Double price;
+
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Set<Category> categories;
