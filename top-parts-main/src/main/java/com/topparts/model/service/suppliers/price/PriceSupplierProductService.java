@@ -2,6 +2,7 @@ package com.topparts.model.service.suppliers.price;
 
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -10,15 +11,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 public class PriceSupplierProductService implements ProductService {
 
     private RestTemplate restTemplate;
+    private String priceSupplierUrl;
 
-    public PriceSupplierProductService(RestTemplateBuilder builder) {
+    public PriceSupplierProductService(RestTemplateBuilder builder,  @Value("${suppliers.price.url}") String priceSupplierUrl) {
         this.restTemplate = builder.build();
+        this.priceSupplierUrl = priceSupplierUrl;
     }
 
     @Override
@@ -33,9 +38,8 @@ public class PriceSupplierProductService implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        List<Product> result = new ArrayList<>();
 
-        String priceListResourceUrl = "http://localhost:8087/price-list";
+        String priceListResourceUrl = priceSupplierUrl + "/price-list";
         ResponseEntity<Map<Long, Double>> priceListResponseEntity = restTemplate
                 .exchange(priceListResourceUrl,
                         HttpMethod.GET,
@@ -45,7 +49,7 @@ public class PriceSupplierProductService implements ProductService {
 
         Map<Long, Double> priceListMap = priceListResponseEntity.getBody();
 
-        String productDetailUrlPattern = "http://localhost:8087/details/{0}";
+        String productDetailUrlPattern = priceSupplierUrl + "/{0}";
 
         if (priceListMap == null) {
             return Collections.emptyList();
@@ -72,7 +76,12 @@ public class PriceSupplierProductService implements ProductService {
 
     @Override
     public List<Product> getAllProductsBySearchQuery(String query) {
-        throw new UnsupportedOperationException();
+        Pattern pattern = Pattern.compile(".*" + query + ".*", Pattern.CASE_INSENSITIVE);
+        return getAllProducts()
+                .stream()
+                .filter(product -> pattern.matcher(product.getDescription()).matches()
+                                || pattern.matcher(product.getName()).matches())
+                .collect(Collectors.toList());
     }
 
     @Override
