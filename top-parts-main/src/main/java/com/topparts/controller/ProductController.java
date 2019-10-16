@@ -27,6 +27,11 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping(params = "searchQuery")
+    public List<Product> getAllProductsBySearchQuery(@RequestParam String searchQuery) {
+        return productService.getAllProductsBySearchQuery(searchQuery);
+    }
+
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable Long id) {
         return productService.getProductById(id).orElseThrow(RuntimeException::new);
