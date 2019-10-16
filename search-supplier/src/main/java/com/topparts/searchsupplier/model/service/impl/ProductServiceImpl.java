@@ -22,6 +22,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllProductsByQuery(String query) {
-        return productRepository.findALlByNameContainingOrDescriptionContaining(query, query);
+        return productRepository.findAllByNameContainingOrDescriptionContaining(query, query);
     }
 }
