@@ -1,6 +1,6 @@
 package com.topparts.model.service.suppliers.search;
 
-import com.topparts.model.dto.SearchSupplierProductDTO;
+import com.topparts.model.dto.SupplierProductDTO;
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -36,22 +36,23 @@ public class SearchSupplierProductService implements ProductService {
     @Override
     public List<Product> getAllProducts() {
         String resourceUrl = "http://localhost:8086/search";
-        ResponseEntity<List<SearchSupplierProductDTO>> listResponseEntity = restTemplate
+        ResponseEntity<List<SupplierProductDTO>> listResponseEntity = restTemplate
                 .exchange(resourceUrl,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<List<SearchSupplierProductDTO>>() {});
+                        new ParameterizedTypeReference<>() {
+                        });
 
-        List<SearchSupplierProductDTO> productDTOList = listResponseEntity.getBody();
+        List<SupplierProductDTO> productDTOList = listResponseEntity.getBody();
 
         if (productDTOList != null) {
             return productDTOList
                     .stream()
-                    .map(searchSupplierProductDTO ->
+                    .map(supplierProductDTO ->
                             Product.builder()
-                                    .name(searchSupplierProductDTO.getName())
-                                    .description(searchSupplierProductDTO.getDescription())
-                                    .price(searchSupplierProductDTO.getPrice())
+                                    .name(supplierProductDTO.getName())
+                                    .description(supplierProductDTO.getDescription())
+                                    .price(supplierProductDTO.getPrice())
                                     .build())
                     .collect(Collectors.toList());
         } else {
