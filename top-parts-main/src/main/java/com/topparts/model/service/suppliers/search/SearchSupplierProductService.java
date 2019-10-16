@@ -3,6 +3,7 @@ package com.topparts.model.service.suppliers.search;
 import com.topparts.model.dto.SearchSupplierProductDTO;
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -18,9 +19,12 @@ import java.util.stream.Collectors;
 @Service
 public class SearchSupplierProductService implements ProductService {
     private RestTemplate restTemplate;
+    private String searchSupplierUrl;
 
-    public SearchSupplierProductService(RestTemplateBuilder builder) {
+    public SearchSupplierProductService(RestTemplateBuilder builder,
+                                        @Value("${suppliers.search.url}") String searchSupplierUrl) {
         this.restTemplate = builder.build();
+        this.searchSupplierUrl = searchSupplierUrl;
     }
 
     @Override
@@ -35,33 +39,16 @@ public class SearchSupplierProductService implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        String resourceUrl = "http://localhost:8086/search";
-        ResponseEntity<List<SearchSupplierProductDTO>> listResponseEntity = restTemplate
-                .exchange(resourceUrl,
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<SearchSupplierProductDTO>>() {});
-
-        List<SearchSupplierProductDTO> productDTOList = listResponseEntity.getBody();
-
-        if (productDTOList != null) {
-            return productDTOList
-                    .stream()
-                    .map(searchSupplierProductDTO ->
-                            Product.builder()
-                                    .name(searchSupplierProductDTO.getName())
-                                    .description(searchSupplierProductDTO.getDescription())
-                                    .price(searchSupplierProductDTO.getPrice())
-                                    .build())
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList();
-        }
+        String resourceUrl = searchSupplierUrl + "/search";
+        List<SearchSupplierProductDTO> productDTOList = getProductDTOListFromRestTemplate(resourceUrl);
+        return extractProductsFromProductDTOS(productDTOList);
     }
 
     @Override
     public List<Product> getAllProductsBySearchQuery(String query) {
-        throw new UnsupportedOperationException();
+        String resourceUrl = searchSupplierUrl + "/search?query=" + query;
+        List<SearchSupplierProductDTO> productDTOList = getProductDTOListFromRestTemplate(resourceUrl);
+        return extractProductsFromProductDTOS(productDTOList);
     }
 
     @Override
@@ -77,5 +64,32 @@ public class SearchSupplierProductService implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         throw new UnsupportedOperationException();
+    }
+
+    private List<SearchSupplierProductDTO> getProductDTOListFromRestTemplate(String resourceUrl) {
+        ResponseEntity<List<SearchSupplierProductDTO>> listResponseEntity = restTemplate
+                .exchange(resourceUrl,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<List<SearchSupplierProductDTO>>() {
+                        });
+
+        return listResponseEntity.getBody();
+    }
+
+    private List<Product> extractProductsFromProductDTOS(List<SearchSupplierProductDTO> productDTOList) {
+        if (productDTOList != null) {
+            return productDTOList
+                    .stream()
+                    .map(searchSupplierProductDTO ->
+                            Product.builder()
+                                    .name(searchSupplierProductDTO.getName())
+                                    .description(searchSupplierProductDTO.getDescription())
+                                    .price(searchSupplierProductDTO.getPrice())
+                                    .build())
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
     }
 }
