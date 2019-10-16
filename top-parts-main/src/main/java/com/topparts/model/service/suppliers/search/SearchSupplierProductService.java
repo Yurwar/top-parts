@@ -16,10 +16,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class SearchSupplierService implements ProductService {
+public class SearchSupplierProductService implements ProductService {
     private RestTemplate restTemplate;
 
-    public SearchSupplierService(RestTemplateBuilder builder) {
+    public SearchSupplierProductService(RestTemplateBuilder builder) {
         this.restTemplate = builder.build();
     }
 

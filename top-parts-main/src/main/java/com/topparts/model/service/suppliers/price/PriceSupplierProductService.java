@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PriceSupplierService implements ProductService {
+public class PriceSupplierProductService implements ProductService {
     @Override
     public void createProduct(Product product) {
         throw new UnsupportedOperationException();
