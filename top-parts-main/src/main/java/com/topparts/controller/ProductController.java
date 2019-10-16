@@ -3,6 +3,7 @@ package com.topparts.controller;
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(@Qualifier("combinedProductService") ProductService productService) {
         this.productService = productService;
     }
 
@@ -25,6 +26,11 @@ public class ProductController {
     @GetMapping
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
+    }
+
+    @GetMapping(params = "searchQuery")
+    public List<Product> getAllProductsBySearchQuery(@RequestParam String searchQuery) {
+        return productService.getAllProductsBySearchQuery(searchQuery);
     }
 
     @GetMapping("/{id}")

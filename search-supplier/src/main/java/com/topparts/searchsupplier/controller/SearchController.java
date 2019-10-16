@@ -2,6 +2,7 @@ package com.topparts.searchsupplier.controller;
 
 import com.topparts.searchsupplier.model.entity.Product;
 import com.topparts.searchsupplier.model.service.ProductService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +18,13 @@ public class SearchController {
         this.productService = productService;
     }
 
-    @RequestMapping
+    @GetMapping(params = "query")
     public List<Product> getProductsByQuery(@RequestParam String query) {
         return productService.getAllProductsByQuery(query);
+    }
+
+    @GetMapping
+    public List<Product> getProducts() {
+        return productService.getAllProducts();
     }
 }
