@@ -25,6 +25,11 @@ public class PriceSupplierService implements ProductService {
     }
 
     @Override
+    public List<Product> getAllProductsBySearchQuery(String query) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public List<Product> getAllProductsByCategory(Long id) {
         throw new UnsupportedOperationException();
     }

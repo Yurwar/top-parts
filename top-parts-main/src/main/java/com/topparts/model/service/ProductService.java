@@ -12,6 +12,8 @@ public interface ProductService {
 
     List<Product> getAllProducts();
 
+    List<Product> getAllProductsBySearchQuery(String query);
+
     List<Product> getAllProductsByCategory(Long id);
 
     void updateProduct(Long id, Product product);

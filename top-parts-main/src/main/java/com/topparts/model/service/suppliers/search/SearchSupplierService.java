@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
-import java.util.Formatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,6 +57,11 @@ public class SearchSupplierService implements ProductService {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public List<Product> getAllProductsBySearchQuery(String query) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

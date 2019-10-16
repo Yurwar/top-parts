@@ -20,27 +20,38 @@ public class ProductServiceImpl implements ProductService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Override
     public void createProduct(Product product) {
         productRepository.save(product);
     }
 
+    @Override
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
     }
 
+    @Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
+    @Override
+    public List<Product> getAllProductsBySearchQuery(String query) {
+        return null;
+    }
+
+    @Override
     public List<Product> getAllProductsByCategory(Long id) {
         return productRepository.getAllByCategoriesContains(categoryRepository.findById(id).orElseThrow(NoSuchElementException::new));
     }
 
+    @Override
     public void updateProduct(Long id, Product product) {
         productRepository.findById(id).orElseThrow(NoSuchElementException::new);
         productRepository.save(product);
     }
 
+    @Override
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
