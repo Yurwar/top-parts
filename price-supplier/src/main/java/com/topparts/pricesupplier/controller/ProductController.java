@@ -1,7 +1,6 @@
 package com.topparts.pricesupplier.controller;
 
 import com.topparts.pricesupplier.model.dto.ProductDetailsDTO;
-import com.topparts.pricesupplier.model.entity.Product;
 import com.topparts.pricesupplier.model.service.ProductService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,13 +19,12 @@ public class ProductController {
     }
 
     @GetMapping("/price-list")
-    public Map<String, Double> getPriceList() {
+    public Map<Long, Double> getPriceList() {
         return productService.getPriceList();
     }
 
     @GetMapping("/details/{id}")
     public ProductDetailsDTO getProductDetails(@PathVariable Long id) {
-        Product product = productService.getProductById(id);
-        return new ProductDetailsDTO(product);
+        return new ProductDetailsDTO(productService.getProductById(id));
     }
 }

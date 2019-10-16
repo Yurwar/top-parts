@@ -6,6 +6,7 @@ import com.topparts.pricesupplier.model.service.ProductService;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -16,9 +17,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Map<String, Double> getPriceList() {
-        //TODO a lot of things!!!
-        return null;
+    public Map<Long, Double> getPriceList() {
+        return productRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(Product::getId, Product::getPrice));
     }
 
     @Override

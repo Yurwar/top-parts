@@ -5,10 +5,11 @@ import lombok.Data;
 
 @Data
 public class ProductDetailsDTO {
-    private Long id;
+    private String name;
     private String description;
 
     public ProductDetailsDTO(Product product) {
-
+        this.name = product.getName();
+        this.description = product.getDescription();
     }
 }
