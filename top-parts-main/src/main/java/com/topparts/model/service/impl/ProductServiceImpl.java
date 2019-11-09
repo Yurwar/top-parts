@@ -4,6 +4,8 @@ import com.topparts.model.entity.Product;
 import com.topparts.model.repository.CategoryRepository;
 import com.topparts.model.repository.ProductRepository;
 import com.topparts.model.service.ProductService;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
@@ -32,12 +35,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        log.trace("Trying to get all products");
+        List<Product> products = productRepository.findAll();
+        log.trace("Return all products");
+        return products;
     }
 
     @Override
     public List<Product> getAllProductsBySearchQuery(String query) {
-        return productRepository.findAllByNameContainingOrDescriptionContaining(query, query);
+        log.trace("Trying to get all products by query: {}", query);
+        List<Product> productsByQuery = productRepository
+                .findAllByNameContainingOrDescriptionContaining(query, query);
+        log.trace("Return all products by query");
+        return productsByQuery;
     }
 
     @Override

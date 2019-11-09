@@ -3,8 +3,11 @@ package com.topparts.model.service.suppliers.search;
 import com.topparts.model.dto.SearchSupplierProductDTO;
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class SearchSupplierProductService implements ProductService {
     private RestTemplate restTemplate;
     private String searchSupplierUrl;
@@ -40,15 +44,25 @@ public class SearchSupplierProductService implements ProductService {
     @Override
     public List<Product> getAllProducts() {
         String resourceUrl = searchSupplierUrl + "/search";
+        log.trace("Trying to get all products from search supplier: {}", resourceUrl);
+
         List<SearchSupplierProductDTO> productDTOList = getProductDTOListFromRestTemplate(resourceUrl);
-        return extractProductsFromProductDTOS(productDTOList);
+        List<Product> products = extractProductsFromProductDTOS(productDTOList);
+
+        log.trace("Return products");
+        return products;
     }
 
     @Override
     public List<Product> getAllProductsBySearchQuery(String query) {
         String resourceUrl = searchSupplierUrl + "/search?query=" + query;
+        log.trace("Trying to get all products from search supplier by query : {}", resourceUrl);
+
         List<SearchSupplierProductDTO> productDTOList = getProductDTOListFromRestTemplate(resourceUrl);
-        return extractProductsFromProductDTOS(productDTOList);
+        List<Product> products = extractProductsFromProductDTOS(productDTOList);
+
+        log.trace("Return products");
+        return products;
     }
 
     @Override
@@ -78,6 +92,7 @@ public class SearchSupplierProductService implements ProductService {
     }
 
     private List<Product> extractProductsFromProductDTOS(List<SearchSupplierProductDTO> productDTOList) {
+        log.trace("Extracting product entities from search supplier DTOs");
         if (productDTOList != null) {
             return productDTOList
                     .stream()

@@ -2,6 +2,8 @@ package com.topparts.model.service.suppliers.price;
 
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,6 +17,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class PriceSupplierProductService implements ProductService {
 
     private RestTemplate restTemplate;
@@ -37,8 +40,10 @@ public class PriceSupplierProductService implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-
+        log.trace("Trying to get all products from price supplier");
         String priceListResourceUrl = priceSupplierUrl + "/price-list";
+
+        log.trace("Get price list of products");
         ResponseEntity<Map<Long, Double>> priceListResponseEntity = restTemplate
                 .exchange(priceListResourceUrl,
                         HttpMethod.GET,
@@ -54,14 +59,19 @@ public class PriceSupplierProductService implements ProductService {
             return Collections.emptyList();
         }
 
-        return priceListMap.keySet()
+        log.trace("Get products by id from price list");
+        List<Product> products = priceListMap.keySet()
                 .stream()
                 .map(id -> getProduct(priceListMap, productDetailUrlPattern, id))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        log.trace("Return all products");
+        return products;
     }
 
     private Product getProduct(Map<Long, Double> priceListMap, String productDetailUrlPattern, Long id) {
+        log.trace("Get product by id from price supplier: {}", id);
+
         Product product = restTemplate.getForObject(productDetailUrlPattern + id, Product.class);
 
         if (product == null) {
@@ -75,12 +85,19 @@ public class PriceSupplierProductService implements ProductService {
 
     @Override
     public List<Product> getAllProductsBySearchQuery(String query) {
+        log.trace("Trying to get all products from price supplier by query: {}", query);
+
         Pattern pattern = Pattern.compile(".*" + query + ".*", Pattern.CASE_INSENSITIVE);
-        return getAllProducts()
+        List<Product> allProducts = getAllProducts();
+
+        log.trace("Filter all products by pattern matcher");
+        List<Product> productsByQuery = allProducts
                 .stream()
                 .filter(product -> pattern.matcher(product.getDescription()).matches()
-                                || pattern.matcher(product.getName()).matches())
+                        || pattern.matcher(product.getName()).matches())
                 .collect(Collectors.toList());
+        log.trace("Return all products by query");
+        return productsByQuery;
     }
 
     @Override
