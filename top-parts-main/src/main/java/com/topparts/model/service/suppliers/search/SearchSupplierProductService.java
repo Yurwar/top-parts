@@ -3,14 +3,15 @@ package com.topparts.model.service.suppliers.search;
 import com.topparts.model.dto.SearchSupplierProductDTO;
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -42,6 +43,7 @@ public class SearchSupplierProductService implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "searchSupplierProducts")
     public List<Product> getAllProducts() {
         String resourceUrl = searchSupplierUrl + "/search";
         log.trace("Trying to get all products from search supplier: {}", resourceUrl);
@@ -54,6 +56,7 @@ public class SearchSupplierProductService implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "searchSupplierProducts", key = "#query.toLowerCase().trim()")
     public List<Product> getAllProductsBySearchQuery(String query) {
         String resourceUrl = searchSupplierUrl + "/search?query=" + query;
         log.trace("Trying to get all products from search supplier by query : {}", resourceUrl);
@@ -106,5 +109,11 @@ public class SearchSupplierProductService implements ProductService {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Scheduled(cron = "0 9 * * *")
+    @CacheEvict(value = "searchSupplierProducts", allEntries = true)
+    public void resetCache() {
+
     }
 }
