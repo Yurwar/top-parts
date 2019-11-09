@@ -48,7 +48,7 @@ public class PriceSupplierProductService implements ProductService {
 
         Map<Long, Double> priceListMap = priceListResponseEntity.getBody();
 
-        String productDetailUrlPattern = priceSupplierUrl + "/{0}";
+        String productDetailUrlPattern = priceSupplierUrl + "/details/";
 
         if (priceListMap == null) {
             return Collections.emptyList();
@@ -62,7 +62,7 @@ public class PriceSupplierProductService implements ProductService {
     }
 
     private Product getProduct(Map<Long, Double> priceListMap, String productDetailUrlPattern, Long id) {
-        Product product = restTemplate.getForObject(String.format(productDetailUrlPattern, id), Product.class);
+        Product product = restTemplate.getForObject(productDetailUrlPattern + id, Product.class);
 
         if (product == null) {
             return null;

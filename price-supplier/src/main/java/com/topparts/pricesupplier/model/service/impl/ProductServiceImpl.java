@@ -6,6 +6,7 @@ import com.topparts.pricesupplier.model.service.ProductService;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProductById(Long id) {
-        return productRepository.getOne(id);
+        return productRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 }
