@@ -14,7 +14,7 @@ public class CachingConfig {
     @Bean
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager concurrentMapCacheManager = new ConcurrentMapCacheManager();
-        concurrentMapCacheManager.setCacheNames(Set.of("searchSupplierProducts"));
+        concurrentMapCacheManager.setCacheNames(Set.of("searchSupplierProducts", "products"));
         return concurrentMapCacheManager;
     }
 }

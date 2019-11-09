@@ -6,6 +6,9 @@ import com.topparts.model.repository.ProductRepository;
 import com.topparts.model.service.ProductService;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,16 +27,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CachePut(value = "products", key = "#product.getId()")
     public void createProduct(Product product) {
         productRepository.save(product);
     }
 
     @Override
+    @Cacheable(value = "products", key = "#id")
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
     }
 
     @Override
+    @Cacheable(value = "products")
     public List<Product> getAllProducts() {
         log.trace("Trying to get all products");
         List<Product> products = productRepository.findAll();
@@ -42,6 +48,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products", key = "#query.toLowerCase().trim()")
     public List<Product> getAllProductsBySearchQuery(String query) {
         log.trace("Trying to get all products by query: {}", query);
         List<Product> productsByQuery = productRepository
@@ -56,12 +63,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CachePut(value = "products", key = "#id")
     public void updateProduct(Long id, Product product) {
         productRepository.findById(id).orElseThrow(NoSuchElementException::new);
         productRepository.save(product);
     }
 
     @Override
+    @CacheEvict(value = "products", key = "#id")
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
