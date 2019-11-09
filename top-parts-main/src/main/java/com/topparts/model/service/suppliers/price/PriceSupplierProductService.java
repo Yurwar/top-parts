@@ -2,13 +2,15 @@ package com.topparts.model.service.suppliers.price;
 
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,6 +41,7 @@ public class PriceSupplierProductService implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "priceSupplierProducts")
     public List<Product> getAllProducts() {
         log.trace("Trying to get all products from price supplier");
         String priceListResourceUrl = priceSupplierUrl + "/price-list";
@@ -84,6 +87,7 @@ public class PriceSupplierProductService implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "priceSupplierProducts", key = "#query.toLowerCase().trim()")
     public List<Product> getAllProductsBySearchQuery(String query) {
         log.trace("Trying to get all products from price supplier by query: {}", query);
 
@@ -113,5 +117,10 @@ public class PriceSupplierProductService implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         throw new UnsupportedOperationException();
+    }
+
+    @Scheduled(cron = "0 9 * * *")
+    @CacheEvict(value = "priceSupplierProducts", allEntries = true)
+    public void resetCache() {
     }
 }
