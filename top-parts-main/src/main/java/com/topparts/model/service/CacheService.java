@@ -27,13 +27,6 @@ public class CacheService {
         this.productServiceImpl = productServiceImpl;
     }
 
-    @PostConstruct
-    public void initCache() {
-        priceSupplierProductService.getAllProducts();
-        searchSupplierProductService.getAllProducts();
-        productServiceImpl.getAllProducts();
-    }
-
     @Scheduled(cron = "0 0 */1 * * ?")
     public void refreshCacheScheduled() {
         log.info("Start refreshing cache");
