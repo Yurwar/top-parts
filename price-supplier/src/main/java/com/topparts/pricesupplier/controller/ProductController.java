@@ -1,15 +1,13 @@
 package com.topparts.pricesupplier.controller;
 
+import com.topparts.pricesupplier.model.dto.PagedPriceListDTO;
 import com.topparts.pricesupplier.model.dto.ProductDetailsDTO;
-import com.topparts.pricesupplier.model.entity.PriceListRow;
 import com.topparts.pricesupplier.model.service.ProductService;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -23,9 +21,10 @@ public class ProductController {
     }
 
     @GetMapping("/price-list")
-    public Page<PriceListRow> getPriceList(@PageableDefault(size = 5000, sort = "id") Pageable pageable) {
+    public PagedPriceListDTO getPriceList(@PageableDefault(size = 5000, sort = "id") Pageable pageable) {
+        Pageable modifiedPageable = PageRequest.of(pageable.getPageNumber(), 5000);
         System.out.println("PriceController");
-        return productService.getPriceList(pageable);
+        return productService.getPriceList(modifiedPageable);
     }
 
     @GetMapping("/details/{id}")
