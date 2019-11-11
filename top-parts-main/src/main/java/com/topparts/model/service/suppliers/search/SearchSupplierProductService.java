@@ -6,12 +6,10 @@ import com.topparts.model.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,15 +22,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SearchSupplierProductService implements ProductService {
     private RestTemplate restTemplate;
-    private SearchSupplierProductService self;
     private String searchSupplierUrl;
 
     public SearchSupplierProductService(RestTemplateBuilder builder,
-                                        SearchSupplierProductService self,
                                         @Value("${suppliers.search.url}") String searchSupplierUrl) {
         this.restTemplate = builder.build();
         this.searchSupplierUrl = searchSupplierUrl;
-        this.self = self;
     }
 
     @Override
@@ -112,11 +107,5 @@ public class SearchSupplierProductService implements ProductService {
         } else {
             return Collections.emptyList();
         }
-    }
-
-    @Scheduled(cron = "0 9 * * *")
-    @CacheEvict(value = "searchSupplierProducts", allEntries = true)
-    public void resetCache() {
-        self.getAllProducts();
     }
 }

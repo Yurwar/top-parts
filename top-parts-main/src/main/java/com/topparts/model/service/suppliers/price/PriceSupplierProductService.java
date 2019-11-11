@@ -5,12 +5,10 @@ import com.topparts.model.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,17 +19,13 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class PriceSupplierProductService implements ProductService {
-
     private RestTemplate restTemplate;
-    private PriceSupplierProductService self;
     private String priceSupplierUrl;
 
     public PriceSupplierProductService(RestTemplateBuilder builder,
-                                       PriceSupplierProductService self,
                                        @Value("${suppliers.price.url}") String priceSupplierUrl) {
         this.restTemplate = builder.build();
         this.priceSupplierUrl = priceSupplierUrl;
-        this.self = self;
     }
 
     @Override
@@ -119,11 +113,5 @@ public class PriceSupplierProductService implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         throw new UnsupportedOperationException();
-    }
-
-    @Scheduled(cron = "0 9 * * *")
-    @CacheEvict(value = "priceSupplierProducts", allEntries = true)
-    public void resetCache() {
-        self.getAllProducts();
     }
 }

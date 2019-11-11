@@ -2,25 +2,30 @@ package com.topparts.model.service;
 
 import com.topparts.model.entity.Product;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 @Slf4j
 public class CombinedProductService implements ProductService {
-    private ProductService productServiceImpl;
-    private ProductService priceSupplierProductService;
-    private ProductService searchSupplierProductService;
+    private final ThreadPoolTaskExecutor executor;
+    private final ProductService productServiceImpl;
+    private final ProductService priceSupplierProductService;
+    private final ProductService searchSupplierProductService;
 
     public CombinedProductService(ProductService productServiceImpl,
                                   ProductService priceSupplierProductService,
-                                  ProductService searchSupplierProductService) {
+                                  ProductService searchSupplierProductService, ThreadPoolTaskExecutor executor) {
         this.productServiceImpl = productServiceImpl;
         this.priceSupplierProductService = priceSupplierProductService;
         this.searchSupplierProductService = searchSupplierProductService;
+        this.executor = executor;
     }
 
     @Override
@@ -37,10 +42,14 @@ public class CombinedProductService implements ProductService {
     public List<Product> getAllProducts() {
         long startTime = System.currentTimeMillis();
 
-        List<Product> resultProducts = new ArrayList<>();
-        resultProducts.addAll(productServiceImpl.getAllProducts());
-        resultProducts.addAll(priceSupplierProductService.getAllProducts());
-        resultProducts.addAll(searchSupplierProductService.getAllProducts());
+        Future<List<Product>> productServiceFuture = executor
+                .submit(productServiceImpl::getAllProducts);
+        Future<List<Product>> priceSupplierFuture = executor
+                .submit(priceSupplierProductService::getAllProducts);
+        Future<List<Product>> searchSupplierFuture = executor
+                .submit(searchSupplierProductService::getAllProducts);
+
+        List<Product> resultProducts = getProductsFromFutures(List.of(productServiceFuture, priceSupplierFuture, searchSupplierFuture));
 
         long elapsedTime = System.currentTimeMillis() - startTime;
         log.debug("getAllProducts working time - {} millis", elapsedTime);
@@ -51,10 +60,14 @@ public class CombinedProductService implements ProductService {
     public List<Product> getAllProductsBySearchQuery(String query) {
         long startTime = System.currentTimeMillis();
 
-        List<Product> resultProducts = new ArrayList<>();
-        resultProducts.addAll(productServiceImpl.getAllProductsBySearchQuery(query));
-        resultProducts.addAll(priceSupplierProductService.getAllProductsBySearchQuery(query));
-        resultProducts.addAll(searchSupplierProductService.getAllProductsBySearchQuery(query));
+        Future<List<Product>> productServiceFuture = executor
+                .submit(() -> productServiceImpl.getAllProductsBySearchQuery(query));
+        Future<List<Product>> priceSupplierFuture = executor
+                .submit(() -> priceSupplierProductService.getAllProductsBySearchQuery(query));
+        Future<List<Product>> searchSupplierFuture = executor
+                .submit(() -> searchSupplierProductService.getAllProductsBySearchQuery(query));
+
+        List<Product> resultProducts = getProductsFromFutures(List.of(productServiceFuture, priceSupplierFuture, searchSupplierFuture));
 
         long elapsedTime = System.currentTimeMillis() - startTime;
         log.debug("getAllProductsBySearchQuery working time - {} millis", elapsedTime);
@@ -74,5 +87,17 @@ public class CombinedProductService implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         productServiceImpl.deleteProduct(id);
+    }
+
+    private List<Product> getProductsFromFutures(List<Future<List<Product>>> productsFuture) {
+        List<Product> resultProducts = new ArrayList<>();
+        try {
+            for (Future<List<Product>> future : productsFuture) {
+                resultProducts.addAll(future.get());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Future executing exception", e);
+        }
+        return resultProducts;
     }
 }
