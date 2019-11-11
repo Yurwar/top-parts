@@ -24,12 +24,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SearchSupplierProductService implements ProductService {
     private RestTemplate restTemplate;
+    private SearchSupplierProductService self;
     private String searchSupplierUrl;
 
     public SearchSupplierProductService(RestTemplateBuilder builder,
+                                        SearchSupplierProductService self,
                                         @Value("${suppliers.search.url}") String searchSupplierUrl) {
         this.restTemplate = builder.build();
         this.searchSupplierUrl = searchSupplierUrl;
+        this.self = self;
     }
 
     @Override
@@ -114,6 +117,6 @@ public class SearchSupplierProductService implements ProductService {
     @Scheduled(cron = "0 9 * * *")
     @CacheEvict(value = "searchSupplierProducts", allEntries = true)
     public void resetCache() {
-
+        self.getAllProducts();
     }
 }

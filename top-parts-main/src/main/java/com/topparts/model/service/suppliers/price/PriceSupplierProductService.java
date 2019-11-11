@@ -23,11 +23,15 @@ import java.util.stream.Collectors;
 public class PriceSupplierProductService implements ProductService {
 
     private RestTemplate restTemplate;
+    private PriceSupplierProductService self;
     private String priceSupplierUrl;
 
-    public PriceSupplierProductService(RestTemplateBuilder builder,  @Value("${suppliers.price.url}") String priceSupplierUrl) {
+    public PriceSupplierProductService(RestTemplateBuilder builder,
+                                       PriceSupplierProductService self,
+                                       @Value("${suppliers.price.url}") String priceSupplierUrl) {
         this.restTemplate = builder.build();
         this.priceSupplierUrl = priceSupplierUrl;
+        this.self = self;
     }
 
     @Override
@@ -73,8 +77,6 @@ public class PriceSupplierProductService implements ProductService {
     }
 
     private Product getProduct(Map<Long, Double> priceListMap, String productDetailUrlPattern, Long id) {
-        log.trace("Get product by id from price supplier: {}", id);
-
         Product product = restTemplate.getForObject(productDetailUrlPattern + id, Product.class);
 
         if (product == null) {
@@ -122,5 +124,6 @@ public class PriceSupplierProductService implements ProductService {
     @Scheduled(cron = "0 9 * * *")
     @CacheEvict(value = "priceSupplierProducts", allEntries = true)
     public void resetCache() {
+        self.getAllProducts();
     }
 }

@@ -40,5 +40,11 @@
         <property name="applicationName" value="DataGrip" />
       </driver-properties>
     </data-source>
+    <data-source source="LOCAL" name="MySQL - top_parts_db@localhost" uuid="389f226b-eadf-4b14-a08e-f0e15f40a0a9">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306/top_parts_db</jdbc-url>
+    </data-source>
   </component>
 </project>
