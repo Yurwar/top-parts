@@ -1,18 +1,23 @@
 package com.topparts.model.service.suppliers.price;
 
+import com.topparts.model.dto.PagedPriceListDTO;
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
+import com.topparts.model.task.RecursivePageTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -38,36 +43,71 @@ public class PriceSupplierProductService implements ProductService {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    @Cacheable(value = "priceSupplierProducts")
-    public List<Product> getAllProducts() {
-        log.trace("Trying to get all products from price supplier");
-        String priceListResourceUrl = priceSupplierUrl + "/price-list";
+    public List<Product> getProductsByPage(int page) {
+        log.trace("Trying to get all products from page #{}", page);
 
-        log.trace("Get price list of products");
-        ResponseEntity<Map<Long, Double>> priceListResponseEntity = restTemplate
-                .exchange(priceListResourceUrl,
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<>() {
-                        });
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/json");
 
-        Map<Long, Double> priceListMap = priceListResponseEntity.getBody();
+        Map<String, String> params = new HashMap<>();
+        params.put("page", String.valueOf(page));
 
-        String productDetailUrlPattern = priceSupplierUrl + "/details/";
+        PagedPriceListDTO priceListPage = executeQuery(headers, params);
 
-        if (priceListMap == null) {
+        if (priceListPage == null) {
             return Collections.emptyList();
         }
 
-        log.trace("Get products by id from price list");
-        List<Product> products = priceListMap.keySet()
+        return mapPriceListPageToProductsList(priceListPage);
+    }
+
+    @Override
+    @Cacheable(value = "priceSupplierProducts")
+    public List<Product> getAllProducts() {
+
+        PagedPriceListDTO priceListPage = executeQuery();
+
+        List<Product> result =  mapPriceListPageToProductsList(priceListPage);
+
+        Long totalPages = priceListPage.getTotalPages();
+
+        if (totalPages > 1) {
+            result.addAll(getProductsAsParallelTask(totalPages));
+        }
+
+        return result;
+    }
+
+    private PagedPriceListDTO executeQuery() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/json");
+
+        Map<String, String> params = new HashMap<>();
+
+        return executeQuery(headers, params);
+    }
+
+    private PagedPriceListDTO executeQuery(HttpHeaders headers, Map<String, String> params) {
+        String priceListResourceUrl = priceSupplierUrl + "/price-list";
+
+        ResponseEntity<PagedPriceListDTO> priceListResponseEntity = restTemplate
+                .exchange(priceListResourceUrl,
+                        HttpMethod.GET,
+                        new HttpEntity(headers),
+                        new ParameterizedTypeReference<>() {},
+                        params);
+
+        return priceListResponseEntity.getBody();
+    }
+
+    private List<Product> mapPriceListPageToProductsList(PagedPriceListDTO priceListPage) {
+        String productDetailUrlPattern = priceSupplierUrl + "/details/";
+
+        return priceListPage.getResults().keySet()
                 .stream()
-                .map(id -> getProduct(priceListMap, productDetailUrlPattern, id))
+                .map(id -> getProduct(priceListPage.getResults(), productDetailUrlPattern, id))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        log.trace("Return all products");
-        return products;
     }
 
     private Product getProduct(Map<Long, Double> priceListMap, String productDetailUrlPattern, Long id) {
@@ -81,6 +121,21 @@ public class PriceSupplierProductService implements ProductService {
         product.setPrice(priceListMap.get(id));
         return product;
     }
+
+    private List<Product> getProductsAsParallelTask(Long totalPages) {
+        List<Integer> pages = new ArrayList<>();
+
+        for (int i = 1; i < totalPages; i++) {
+            pages.add(i);
+        }
+
+        ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+
+        RecursivePageTask recursivePageTask = new RecursivePageTask(pages, this);
+
+        return forkJoinPool.invoke(recursivePageTask);
+    }
+
 
     @Override
     @Cacheable(value = "priceSupplierProducts", key = "#query.toLowerCase().trim()")
