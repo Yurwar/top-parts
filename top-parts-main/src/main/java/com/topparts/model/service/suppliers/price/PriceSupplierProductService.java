@@ -1,15 +1,18 @@
 package com.topparts.model.service.suppliers.price;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.topparts.model.dto.PriceListRowDTO;
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
+import com.topparts.model.utils.RestPageImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -40,6 +43,72 @@ public class PriceSupplierProductService implements ProductService {
         throw new UnsupportedOperationException();
     }
 
+//    @Override
+//    @Cacheable(value = "priceSupplierProducts")
+//    public List<Product> getAllProducts() {
+//        log.trace("Trying to get all products from price supplier");
+//        String priceListResourceUrl = priceSupplierUrl + "/price-list";
+//
+//        log.trace("Get price list of products");
+//        ResponseEntity<Map<Long, Double>> priceListResponseEntity = restTemplate
+//                .exchange(priceListResourceUrl,
+//                        HttpMethod.GET,
+//                        null,
+//                        new ParameterizedTypeReference<>() {
+//                        });
+//
+//        Map<Long, Double> priceListMap = priceListResponseEntity.getBody();
+//
+//        String productDetailUrlPattern = priceSupplierUrl + "/details/";
+//
+//        if (priceListMap == null) {
+//            return Collections.emptyList();
+//        }
+//
+//        log.trace("Get products by id from price list");
+//        List<Product> products = priceListMap.keySet()
+//                .stream()
+//                .map(id -> getProduct(priceListMap, productDetailUrlPattern, id))
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toList());
+//        log.trace("Return all products");
+//        return products;
+//    }
+
+    public List<Product> getProductsByPage(int page) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/json");
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("page", String.valueOf(page));
+
+        HttpEntity entity = new HttpEntity(headers);
+
+        String priceListResourceUrl = priceSupplierUrl + "/price-list";
+        ResponseEntity<RestPageImpl<PriceListRowDTO>> priceListResponseEntity = restTemplate
+                .exchange(priceListResourceUrl,
+                        HttpMethod.GET,
+                        entity,
+                        new ParameterizedTypeReference<>() {},
+                        params);
+
+        Page<PriceListRowDTO> priceListPage = priceListResponseEntity.getBody();
+
+        String productDetailUrlPattern = priceSupplierUrl + "/details/";
+
+        if (priceListPage == null) {
+            return Collections.emptyList();
+        }
+
+        List<Product> result = new ArrayList<>();
+
+        return priceListPage
+                .stream()
+                .map(priceListRowDTO -> getProduct(priceListRowDTO, productDetailUrlPattern))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
     @Override
     @Cacheable(value = "priceSupplierProducts")
     public List<Product> getAllProducts() {
@@ -47,42 +116,54 @@ public class PriceSupplierProductService implements ProductService {
         String priceListResourceUrl = priceSupplierUrl + "/price-list";
 
         log.trace("Get price list of products");
-        ResponseEntity<Map<Long, Double>> priceListResponseEntity = restTemplate
+        ResponseEntity<RestPageImpl<PriceListRowDTO>> priceListResponseEntity = restTemplate
                 .exchange(priceListResourceUrl,
                         HttpMethod.GET,
                         null,
                         new ParameterizedTypeReference<>() {
                         });
 
-        Map<Long, Double> priceListMap = priceListResponseEntity.getBody();
+        Page<PriceListRowDTO> priceListPage = priceListResponseEntity.getBody();
 
         String productDetailUrlPattern = priceSupplierUrl + "/details/";
 
-        if (priceListMap == null) {
+        if (priceListPage == null) {
             return Collections.emptyList();
         }
 
+        List<Product> result = new ArrayList<>();
+
         log.trace("Get products by id from price list");
-        List<Product> products = priceListMap.keySet()
+        List<Product> products = priceListPage
                 .stream()
-                .map(id -> getProduct(priceListMap, productDetailUrlPattern, id))
+                .map(priceListRowDTO -> getProduct(priceListRowDTO, productDetailUrlPattern))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         log.trace("Return all products");
+
+        int totalPages = priceListPage.getTotalPages();
+        log.trace("Total rows: {}", products.size());
+
+        if (totalPages > 1) {
+            for (int i = 1; i < totalPages; i++) {
+                result.addAll(getProductsByPage(i));
+                log.trace("Received paged #{}", i);
+            }
+        }
         return products;
     }
 
-    private Product getProduct(Map<Long, Double> priceListMap, String productDetailUrlPattern, Long id) {
-        log.trace("Get product by id from price supplier: {}", id);
+    private Product getProduct(PriceListRowDTO priceListRowDTO, String productDetailUrlPattern) {
+        log.trace("Get product by id from price supplier: {}", priceListRowDTO.getId());
 
-        Product product = restTemplate.getForObject(productDetailUrlPattern + id, Product.class);
+        Product product = restTemplate.getForObject(productDetailUrlPattern + priceListRowDTO.getId(), Product.class);
 
         if (product == null) {
             return null;
         }
 
-        product.setId(id);
-        product.setPrice(priceListMap.get(id));
+        product.setId(priceListRowDTO.getId());
+        product.setPrice(priceListRowDTO.getPrice());
         return product;
     }
 

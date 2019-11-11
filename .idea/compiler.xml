@@ -8,8 +8,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="search-supplier" />
-        <module name="price-supplier" />
         <module name="top-parts-main" />
+        <module name="price-supplier" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
