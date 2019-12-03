@@ -75,11 +75,6 @@ public class CombinedProductService implements ProductService {
     }
 
     @Override
-    public List<Product> getAllProductsByCategory(Long id) {
-        return productServiceImpl.getAllProducts();
-    }
-
-    @Override
     public void updateProduct(Long id, Product product) {
         productServiceImpl.updateProduct(id, product);
     }

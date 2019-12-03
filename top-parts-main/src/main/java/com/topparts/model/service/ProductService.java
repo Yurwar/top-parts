@@ -14,8 +14,6 @@ public interface ProductService {
 
     List<Product> getAllProductsBySearchQuery(String query);
 
-    List<Product> getAllProductsByCategory(Long id);
-
     void updateProduct(Long id, Product product);
 
     void deleteProduct(Long id);

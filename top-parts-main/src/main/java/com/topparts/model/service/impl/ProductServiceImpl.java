@@ -1,10 +1,8 @@
 package com.topparts.model.service.impl;
 
 import com.topparts.model.entity.Product;
-import com.topparts.model.repository.CategoryRepository;
 import com.topparts.model.repository.ProductRepository;
 import com.topparts.model.service.ProductService;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -19,11 +17,9 @@ import java.util.Optional;
 @Slf4j
 public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
-    private CategoryRepository categoryRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -55,11 +51,6 @@ public class ProductServiceImpl implements ProductService {
                 .findAllByNameContainingOrDescriptionContaining(query, query);
         log.trace("Return all products by query");
         return productsByQuery;
-    }
-
-    @Override
-    public List<Product> getAllProductsByCategory(Long id) {
-        return productRepository.getAllByCategoriesContains(categoryRepository.findById(id).orElseThrow(NoSuchElementException::new));
     }
 
     @Override
