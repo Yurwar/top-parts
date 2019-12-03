@@ -2,18 +2,26 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="search-supplier" />
-        <module name="top-parts-main" />
+        <module name="discovery" />
+        <module name="search" />
+        <module name="purchase" />
         <module name="price-supplier" />
+        <module name="authorization" />
+        <module name="config" />
+        <module name="search-supplier" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="authorization" target="11" />
+      <module name="config" target="11" />
+      <module name="discovery" target="11" />
       <module name="price-supplier" target="11" />
+      <module name="purchase" target="11" />
+      <module name="search" target="11" />
       <module name="search-supplier" target="11" />
       <module name="top-parts" target="11" />
       <module name="top-parts-main" target="11" />
@@ -21,10 +29,13 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="authorization" options="-parameters" />
+      <module name="config" options="-parameters" />
+      <module name="discovery" options="-parameters" />
       <module name="price-supplier" options="-parameters" />
+      <module name="purchase" options="-parameters" />
+      <module name="search" options="-parameters" />
       <module name="search-supplier" options="-parameters" />
-      <module name="top-parts" options="-parameters" />
-      <module name="top-parts-main" options="-parameters" />
     </option>
   </component>
 </project>

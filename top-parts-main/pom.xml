@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <modules>
+        <module>authorization</module>
+        <module>config</module>
+        <module>purchase</module>
+        <module>search</module>
+        <module>discovery</module>
+    </modules>
     <parent>
         <artifactId>top-parts</artifactId>
         <groupId>com.topparts</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
+
     <version>0.0.1-SNAPSHOT</version>
     <name>top-parts-main</name>
     <description>Main top parts app</description>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>top-parts-main</artifactId>
 
     <properties>
         <java.version>11</java.version>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-    </dependencies>
 
 </project>
