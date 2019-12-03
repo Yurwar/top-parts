@@ -3,7 +3,6 @@ package com.topparts.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -19,7 +18,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_id",nullable = false)
+    @Column(name = "product_id", nullable = false)
     private Long id;
 
     @Column(nullable = false)
@@ -30,9 +29,5 @@ public class Product {
 
     @Column(nullable = false)
     private Double price;
-
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id")
-    private Set<Category> categories;
 
 }

@@ -67,11 +67,6 @@ public class SearchSupplierProductService implements ProductService {
     }
 
     @Override
-    public List<Product> getAllProductsByCategory(Long id) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void updateProduct(Long id, Product product) {
         throw new UnsupportedOperationException();
     }
