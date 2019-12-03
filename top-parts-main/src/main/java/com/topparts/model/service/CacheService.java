@@ -1,8 +1,11 @@
 package com.topparts.model.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +43,20 @@ public class CacheService {
         log.info("All cache refreshed");
     }
 
+    public void initCache() {
+        log.info("Start initializing cache");
+        priceSupplierProductService.getAllProducts();
+        searchSupplierProductService.getAllProducts();
+        productServiceImpl.getAllProducts();
+        log.info("All cache initialized");
+    }
+
     public void clearCacheByName(String name) {
         Optional.ofNullable(cacheManager.getCache(name)).ifPresent(Cache::clear);
+    }
+
+    @EventListener
+    public void handleContextRefreshEvent(ContextRefreshedEvent ctxStartEvt) {
+        initCache();
     }
 }
