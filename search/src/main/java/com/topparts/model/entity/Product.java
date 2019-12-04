@@ -30,4 +30,10 @@ public class Product {
     @Column(nullable = false)
     private Double price;
 
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
+            fetch = FetchType.EAGER,
+            targetEntity = Supplier.class)
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier;
+
 }

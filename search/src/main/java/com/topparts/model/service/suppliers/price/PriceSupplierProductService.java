@@ -2,7 +2,9 @@ package com.topparts.model.service.suppliers.price;
 
 import com.topparts.model.dto.PagedPriceListDTO;
 import com.topparts.model.entity.Product;
+import com.topparts.model.entity.Supplier;
 import com.topparts.model.service.ProductService;
+import com.topparts.model.service.suppliers.SupplierService;
 import com.topparts.model.task.RecursivePageTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,12 +26,16 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class PriceSupplierProductService implements ProductService {
+    private static final String PRICE_SUPPLIER_NAME = "Price supplier";
     private RestTemplate restTemplate;
     private String priceSupplierUrl;
+    private SupplierService supplierService;
 
     public PriceSupplierProductService(RestTemplateBuilder builder,
+                                       SupplierService supplierService,
                                        @Value("${suppliers.price.url}") String priceSupplierUrl) {
         this.restTemplate = builder.build();
+        this.supplierService = supplierService;
         this.priceSupplierUrl = priceSupplierUrl;
     }
 
@@ -67,7 +73,7 @@ public class PriceSupplierProductService implements ProductService {
 
         PagedPriceListDTO priceListPage = executeQuery();
 
-        List<Product> result =  mapPriceListPageToProductsList(priceListPage);
+        List<Product> result = mapPriceListPageToProductsList(priceListPage);
 
         Long totalPages = priceListPage.getTotalPages();
 
@@ -75,7 +81,14 @@ public class PriceSupplierProductService implements ProductService {
             result.addAll(getProductsAsParallelTask(totalPages));
         }
 
+        fillSupplierForProducts(result);
+
         return result;
+    }
+
+    private void fillSupplierForProducts(List<Product> result) {
+        Supplier priceSupplier = supplierService.getByName(PRICE_SUPPLIER_NAME);
+        result.forEach(product -> product.setSupplier(priceSupplier));
     }
 
     private PagedPriceListDTO executeQuery() {
@@ -94,7 +107,8 @@ public class PriceSupplierProductService implements ProductService {
                 .exchange(priceListResourceUrl,
                         HttpMethod.GET,
                         new HttpEntity(headers),
-                        new ParameterizedTypeReference<>() {},
+                        new ParameterizedTypeReference<>() {
+                        },
                         params);
 
         return priceListResponseEntity.getBody();

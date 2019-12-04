@@ -8,9 +8,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="discovery" />
-        <module name="authorization" />
         <module name="search" />
+        <module name="gateway" />
         <module name="purchase" />
+        <module name="authorization" />
         <module name="config" />
       </profile>
     </annotationProcessing>
@@ -18,6 +19,7 @@
       <module name="authorization" target="11" />
       <module name="config" target="11" />
       <module name="discovery" target="11" />
+      <module name="gateway" target="11" />
       <module name="price-supplier" target="11" />
       <module name="purchase" target="11" />
       <module name="search" target="11" />
@@ -31,6 +33,7 @@
       <module name="authorization" options="-parameters" />
       <module name="config" options="-parameters" />
       <module name="discovery" options="-parameters" />
+      <module name="gateway" options="-parameters" />
       <module name="price-supplier" options="-parameters" />
       <module name="purchase" options="-parameters" />
       <module name="search" options="-parameters" />
