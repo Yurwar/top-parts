@@ -10,6 +10,9 @@
 		<module>search</module>
 		<module>discovery</module>
 		<module>gateway</module>
+        <module>top-parts-supplier</module>
+		<module>price-supplier</module>
+		<module>search-supplier</module>
 	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
