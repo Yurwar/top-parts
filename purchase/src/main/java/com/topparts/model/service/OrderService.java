@@ -22,6 +22,16 @@ public class OrderService {
     }
 
     public void createOrder(OrderDto orderDto) {
+        Order order = Order.builder()
+                .userId(orderDto.getUserId())
+                .dateOfPurchase(
+                        Objects.isNull(orderDto.getDateOfPurchase())
+                                ?
+                                LocalDateTime.now()
+                                :
+                                orderDto.getDateOfPurchase())
+                .build();
+
         Set<OrderEntry> entries = orderDto
                 .getEntries()
                 .stream()
@@ -29,19 +39,11 @@ public class OrderService {
                         .productId(orderEntryDto.getProductId())
                         .supplierId(orderEntryDto.getSupplierId())
                         .quantity(orderEntryDto.getQuantity())
+                        .order(order)
                         .build())
                 .collect(Collectors.toSet());
 
-        Order order = Order.builder()
-                .userId(orderDto.getUserId())
-                .entries(entries)
-                .dateOfPurchase(
-                        Objects.isNull(orderDto.getDateOfPurchase())
-                        ?
-                        LocalDateTime.now()
-                        :
-                        orderDto.getDateOfPurchase())
-                .build();
+        order.setEntries(entries);
 
         orderRepository.save(order);
     }

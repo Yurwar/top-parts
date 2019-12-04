@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Builder
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "order")
 
 @Entity
 @Table(name = "order_entries")
@@ -29,7 +29,7 @@ public class OrderEntry {
     @Column(name = "quantity")
     private Long quantity;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Order.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Order.class)
     @JoinColumn(name = "order_id")
     private Order order;
 }

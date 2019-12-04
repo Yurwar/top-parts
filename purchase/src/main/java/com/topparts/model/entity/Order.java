@@ -29,6 +29,6 @@ public class Order {
     @Column(name = "date_of_order")
     private LocalDateTime dateOfPurchase;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<OrderEntry> entries;
 }
