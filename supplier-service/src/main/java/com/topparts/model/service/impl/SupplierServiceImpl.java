@@ -2,7 +2,7 @@ package com.topparts.model.service.impl;
 
 import com.topparts.model.entity.Supplier;
 import com.topparts.model.repository.SupplierRepository;
-import com.topparts.model.service.suppliers.SupplierService;
+import com.topparts.model.service.SupplierService;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
