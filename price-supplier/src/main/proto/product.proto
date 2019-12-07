@@ -26,16 +26,15 @@ message Id {
     int64 id = 1;
 }
 
-message UpdateRequest {
-    Id id = 1;
-    Product product = 2;
+message Name {
+    string name = 1;
 }
 
-service TopPartsSupplierProductService {
-    rpc createProduct (Product) returns (google.protobuf.Empty);
-    rpc getProductById (Id) returns (Product);
+service SupplierService {
+    rpc getSupplierByName (Name) returns (Supplier) {}
+}
+
+service PriceSupplierProductService {
     rpc getAllProducts (google.protobuf.Empty) returns (stream Product);
     rpc getAllProductsBySearchQuery (Query) returns (stream Product);
-    rpc updateProduct (UpdateRequest) returns (google.protobuf.Empty);
-    rpc deleteProduct (Id) returns (google.protobuf.Empty);
 }

@@ -15,27 +15,28 @@ import java.util.concurrent.Future;
 @Slf4j
 public class CombinedProductService implements ProductService {
     private final ThreadPoolTaskExecutor executor;
-    private final ProductService productServiceImpl;
-    private final ProductService priceSupplierProductService;
-    private final ProductService searchSupplierProductService;
+    private final ProductService topPartsGrpcSupplierService;
+    private final ProductService searchGrpcSupplierService;
+    private final ProductService priceGrpcSupplierService;
 
-    public CombinedProductService(ProductService productServiceImpl,
-                                  ProductService priceSupplierProductService,
-                                  ProductService searchSupplierProductService, ThreadPoolTaskExecutor executor) {
-        this.productServiceImpl = productServiceImpl;
-        this.priceSupplierProductService = priceSupplierProductService;
-        this.searchSupplierProductService = searchSupplierProductService;
+    public CombinedProductService(ProductService topPartsGrpcSupplierService,
+                                  ProductService searchGrpcSupplierService,
+                                  ProductService priceGrpcSupplierService,
+                                  ThreadPoolTaskExecutor executor) {
+        this.topPartsGrpcSupplierService = topPartsGrpcSupplierService;
+        this.searchGrpcSupplierService = searchGrpcSupplierService;
+        this.priceGrpcSupplierService = priceGrpcSupplierService;
         this.executor = executor;
     }
 
     @Override
     public void createProduct(Product product) {
-        productServiceImpl.createProduct(product);
+        topPartsGrpcSupplierService.createProduct(product);
     }
 
     @Override
     public Optional<Product> getProductById(Long id) {
-        return productServiceImpl.getProductById(id);
+        return topPartsGrpcSupplierService.getProductById(id);
     }
 
     @Override
@@ -43,11 +44,11 @@ public class CombinedProductService implements ProductService {
         long startTime = System.currentTimeMillis();
 
         Future<List<Product>> productServiceFuture = executor
-                .submit(productServiceImpl::getAllProducts);
+                .submit(topPartsGrpcSupplierService::getAllProducts);
         Future<List<Product>> priceSupplierFuture = executor
-                .submit(priceSupplierProductService::getAllProducts);
+                .submit(priceGrpcSupplierService::getAllProducts);
         Future<List<Product>> searchSupplierFuture = executor
-                .submit(searchSupplierProductService::getAllProducts);
+                .submit(searchGrpcSupplierService::getAllProducts);
 
         List<Product> resultProducts = getProductsFromFutures(List.of(productServiceFuture, priceSupplierFuture, searchSupplierFuture));
 
@@ -61,11 +62,11 @@ public class CombinedProductService implements ProductService {
         long startTime = System.currentTimeMillis();
 
         Future<List<Product>> productServiceFuture = executor
-                .submit(() -> productServiceImpl.getAllProductsBySearchQuery(query));
+                .submit(() -> topPartsGrpcSupplierService.getAllProductsBySearchQuery(query));
         Future<List<Product>> priceSupplierFuture = executor
-                .submit(() -> priceSupplierProductService.getAllProductsBySearchQuery(query));
+                .submit(() -> priceGrpcSupplierService.getAllProductsBySearchQuery(query));
         Future<List<Product>> searchSupplierFuture = executor
-                .submit(() -> searchSupplierProductService.getAllProductsBySearchQuery(query));
+                .submit(() -> searchGrpcSupplierService.getAllProductsBySearchQuery(query));
 
         List<Product> resultProducts = getProductsFromFutures(List.of(productServiceFuture, priceSupplierFuture, searchSupplierFuture));
 
@@ -76,12 +77,12 @@ public class CombinedProductService implements ProductService {
 
     @Override
     public void updateProduct(Long id, Product product) {
-        productServiceImpl.updateProduct(id, product);
+        topPartsGrpcSupplierService.updateProduct(id, product);
     }
 
     @Override
     public void deleteProduct(Long id) {
-        productServiceImpl.deleteProduct(id);
+        topPartsGrpcSupplierService.deleteProduct(id);
     }
 
     private List<Product> getProductsFromFutures(List<Future<List<Product>>> productsFuture) {

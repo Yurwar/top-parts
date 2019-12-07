@@ -39,3 +39,15 @@ service TopPartsSupplierProductService {
     rpc updateProduct (UpdateRequest) returns (google.protobuf.Empty);
     rpc deleteProduct (Id) returns (google.protobuf.Empty);
 }
+
+
+service SearchSupplierProductService {
+    rpc getAllProducts (google.protobuf.Empty) returns (stream Product);
+    rpc getAllProductsBySearchQuery (Query) returns (stream Product);
+}
+
+service PriceSupplierProductService {
+    rpc getAllProducts (google.protobuf.Empty) returns (stream Product);
+    rpc getAllProductsBySearchQuery (Query) returns (stream Product);
+}
+

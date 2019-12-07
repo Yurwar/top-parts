@@ -13,6 +13,7 @@
         <module>top-parts-supplier</module>
 		<module>price-supplier</module>
 		<module>search-supplier</module>
+		<module>supplier-service</module>
 	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>

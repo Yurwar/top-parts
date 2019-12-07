@@ -14,18 +14,18 @@ import java.util.Optional;
 @Slf4j
 public class CacheService {
     private final CacheManager cacheManager;
-    private final ProductService priceSupplierProductService;
-    private final ProductService searchSupplierProductService;
-    private final ProductService productServiceImpl;
+    private final ProductService topPartsGrpcSupplierService;
+    private final ProductService searchGrpcSupplierService;
+    private final ProductService priceGrpcSupplierService;
 
     public CacheService(CacheManager cacheManager,
-                        ProductService priceSupplierProductService,
-                        ProductService searchSupplierProductService,
-                        ProductService productServiceImpl) {
+                        ProductService topPartsGrpcSupplierService,
+                        ProductService searchGrpcSupplierService,
+                        ProductService priceGrpcSupplierService) {
         this.cacheManager = cacheManager;
-        this.priceSupplierProductService = priceSupplierProductService;
-        this.searchSupplierProductService = searchSupplierProductService;
-        this.productServiceImpl = productServiceImpl;
+        this.topPartsGrpcSupplierService = topPartsGrpcSupplierService;
+        this.searchGrpcSupplierService = searchGrpcSupplierService;
+        this.priceGrpcSupplierService = priceGrpcSupplierService;
     }
 
     @Scheduled(cron = "0 0 */1 * * ?")
@@ -35,17 +35,17 @@ public class CacheService {
             Optional.ofNullable(cacheManager.getCache(name)).ifPresent(Cache::clear);
         }
         log.info("All cache cleared");
-        priceSupplierProductService.getAllProducts();
-        searchSupplierProductService.getAllProducts();
-        productServiceImpl.getAllProducts();
+        topPartsGrpcSupplierService.getAllProducts();
+        searchGrpcSupplierService.getAllProducts();
+        priceGrpcSupplierService.getAllProducts();
         log.info("All cache refreshed");
     }
 
     public void initCache() {
         log.info("Start initializing cache");
-        priceSupplierProductService.getAllProducts();
-        searchSupplierProductService.getAllProducts();
-        productServiceImpl.getAllProducts();
+        topPartsGrpcSupplierService.getAllProducts();
+        searchGrpcSupplierService.getAllProducts();
+        priceGrpcSupplierService.getAllProducts();
         log.info("All cache initialized");
     }
 
