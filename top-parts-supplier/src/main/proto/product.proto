@@ -22,11 +22,20 @@ message Query {
     string query = 1;
 }
 
-message ProductList {
-    repeated Product products = 1;
+message Id {
+    int64 id = 1;
 }
 
-service ProductService {
-    rpc getAllProducts (google.protobuf.Empty) returns (ProductList);
-    rpc getAllProductsBySearchQuery (Query) returns (ProductList);
+message UpdateRequest {
+    Id id = 1;
+    Product product = 2;
+}
+
+service TopPartsSupplierProductService {
+    rpc createProduct (Product) returns (google.protobuf.Empty);
+    rpc getProductById (Id) returns (Product);
+    rpc getAllProducts (google.protobuf.Empty) returns (stream Product);
+    rpc getAllProductsBySearchQuery (Query) returns (stream Product);
+    rpc updateProduct (UpdateRequest) returns (google.protobuf.Empty);
+    rpc deleteProduct (Id) returns (google.protobuf.Empty);
 }
