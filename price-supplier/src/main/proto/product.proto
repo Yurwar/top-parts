@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+package com.topparts.grpc.product;
+
+message Supplier {
+    int64 id = 1;
+    string name = 2;
+}
+
+message Product {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    double price = 4;
+    Supplier supplier = 5;
+}
+
+message Query {
+    string query = 1;
+}
+
+message Id {
+    int64 id = 1;
+}
+
+message Name {
+    string name = 1;
+}
+
+service SupplierService {
+    rpc getSupplierByName (Name) returns (Supplier) {}
+}
+
+service PriceSupplierProductService {
+    rpc getAllProducts (google.protobuf.Empty) returns (stream Product);
+    rpc getAllProductsBySearchQuery (Query) returns (stream Product);
+}
