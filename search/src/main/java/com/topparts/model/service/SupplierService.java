@@ -1,4 +1,4 @@
-package com.topparts.model.service.suppliers;
+package com.topparts.model.service;
 
 import com.topparts.model.entity.Supplier;
 
