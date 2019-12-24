@@ -14,7 +14,8 @@
 		<module>price-supplier</module>
 		<module>search-supplier</module>
 		<module>supplier-service</module>
-	</modules>
+        <module>graphql</module>
+    </modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>

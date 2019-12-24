@@ -18,8 +18,8 @@ public class OrderController {
     }
 
     @PostMapping
-    public void createOrder(@RequestBody OrderDto orderDto) {
-        orderService.createOrder(orderDto);
+    public OrderDto createOrder(@RequestBody OrderDto orderDto) {
+        return new OrderDto(orderService.createOrder(orderDto));
     }
 
     @GetMapping
@@ -38,6 +38,14 @@ public class OrderController {
     @GetMapping("/users/{id}")
     public List<OrderDto> getAllOrdersByUserId(@PathVariable Long id) {
         return orderService.getAllOrdersByUserId(id)
+                .stream()
+                .map(OrderDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/suppliers/{id}")
+    public List<OrderDto> getAllOrdersBySupplierId(@PathVariable Long id) {
+        return orderService.getAllOrdersBySupplierId(id)
                 .stream()
                 .map(OrderDto::new)
                 .collect(Collectors.toList());

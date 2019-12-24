@@ -15,11 +15,13 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @ToString
 public class OrderDto {
+    private Long id;
     private Long userId;
     private Set<OrderEntryDto> entries;
     private LocalDateTime dateOfPurchase;
 
     public OrderDto(Order order) {
+        this.id = order.getId();
         this.userId = order.getUserId();
         this.entries = order.getEntries()
                 .stream()

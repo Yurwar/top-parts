@@ -21,7 +21,7 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public void createOrder(OrderDto orderDto) {
+    public Order createOrder(OrderDto orderDto) {
         Order order = Order.builder()
                 .userId(orderDto.getUserId())
                 .dateOfPurchase(
@@ -46,6 +46,8 @@ public class OrderService {
         order.setEntries(entries);
 
         orderRepository.save(order);
+
+        return order;
     }
 
     public List<Order> getAllOrders() {
@@ -59,5 +61,17 @@ public class OrderService {
 
     public List<Order> getAllOrdersByUserId(Long id) {
         return orderRepository.findAllByUserId(id);
+    }
+
+    public List<Order> getAllOrdersBySupplierId(Long id) {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> order
+                        .getEntries()
+                        .stream()
+                        .anyMatch(orderEntry -> orderEntry
+                                .getSupplierId()
+                                .equals(id)))
+                .collect(Collectors.toList());
     }
 }
