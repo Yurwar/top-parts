@@ -5,7 +5,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>authorization</module>
-		<module>config</module>
 		<module>purchase</module>
 		<module>search</module>
 		<module>discovery</module>
