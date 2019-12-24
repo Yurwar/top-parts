@@ -7,7 +7,6 @@
 		<module>authorization</module>
 		<module>purchase</module>
 		<module>search</module>
-		<module>discovery</module>
 		<module>gateway</module>
         <module>top-parts-supplier</module>
 		<module>price-supplier</module>
