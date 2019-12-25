@@ -1,9 +1,10 @@
 package com.topparts.model.service.grpc;
 
 import com.google.protobuf.Empty;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
-import com.topparts.grpc.product.*;
+import com.topparts.grpc.product.Id;
+import com.topparts.grpc.product.Query;
+import com.topparts.grpc.product.TopPartsSupplierProductServiceGrpc;
+import com.topparts.grpc.product.UpdateRequest;
 import com.topparts.model.entity.Product;
 import com.topparts.model.service.ProductService;
 import com.topparts.model.service.grpc.converter.Converter;
@@ -12,6 +13,8 @@ import io.grpc.ManagedChannelBuilder;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,20 +26,23 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     private TopPartsSupplierProductServiceGrpc.TopPartsSupplierProductServiceBlockingStub
             topPartsSupplierProductServiceBlockingStub;
-    private EurekaClient discoveryClient;
+    private DiscoveryClient discoveryClient;
 
-    public TopPartsGrpcSupplierService(EurekaClient discoveryClient) {
+    public TopPartsGrpcSupplierService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
         refreshConnection();
     }
 
     public void refreshConnection() {
-        InstanceInfo instance = discoveryClient.getNextServerFromEureka(GRPC_SERVER_NAME, IS_SECURE);
+        ServiceInstance instance = discoveryClient.getInstances(GRPC_SERVER_NAME)
+                .stream()
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
 
-        System.out.println(instance.getIPAddr() + ":" + instance.getPort());
+        System.out.println(instance.getUri() + ":" + instance.getPort());
 
         ManagedChannel managedChannel = ManagedChannelBuilder
-                .forAddress(instance.getIPAddr(), instance.getPort())
+                .forAddress(instance.getUri().getHost(), instance.getPort())
                 .usePlaintext().build();
 
 

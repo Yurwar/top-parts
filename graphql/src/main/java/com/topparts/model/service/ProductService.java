@@ -1,16 +1,18 @@
 package com.topparts.model.service;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
 import com.topparts.model.Product;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.MalformedURLException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class ProductService {
@@ -21,19 +23,27 @@ public class ProductService {
 
     private static final String SEARCH_SERVICE_NAME = "search-service";
     private static final boolean IS_SECURE = false;
-    private EurekaClient discoveryClient;
+    private DiscoveryClient discoveryClient;
 
     private RestTemplate restTemplate;
 
-    public ProductService(RestTemplateBuilder restTemplateBuilder, EurekaClient discoveryClient) {
+    public ProductService(RestTemplateBuilder restTemplateBuilder, DiscoveryClient discoveryClient) {
         this.restTemplate = restTemplateBuilder.build();
         this.discoveryClient = discoveryClient;
         refreshConnection();
     }
 
     public void refreshConnection() {
-        InstanceInfo instance = discoveryClient.getNextServerFromEureka(SEARCH_SERVICE_NAME, IS_SECURE);
-        searchServiceUrl = instance.getHomePageUrl();
+        ServiceInstance instance = discoveryClient.getInstances(SEARCH_QUERY_PARAM_NAME)
+                .stream()
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
+
+        try {
+            searchServiceUrl = instance.getUri().toURL().toString();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Product getProductById(Long id) {

@@ -1,8 +1,6 @@
 package com.topparts.model.service.grpc;
 
 import com.google.protobuf.Empty;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
 import com.topparts.grpc.product.Query;
 import com.topparts.grpc.product.SearchSupplierProductServiceGrpc;
 import com.topparts.model.entity.Product;
@@ -11,12 +9,11 @@ import com.topparts.model.service.grpc.converter.Converter;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -26,20 +23,23 @@ public class SearchGrpcSupplierService implements ProductService {
 
     private SearchSupplierProductServiceGrpc.SearchSupplierProductServiceBlockingStub
             searchSupplierProductServiceBlockingStub;
-    private EurekaClient discoveryClient;
+    private DiscoveryClient discoveryClient;
 
-    public SearchGrpcSupplierService(EurekaClient discoveryClient) {
+    public SearchGrpcSupplierService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
         refreshConnection();
     }
 
     public void refreshConnection() {
-        InstanceInfo instance = discoveryClient.getNextServerFromEureka(GRPC_SERVER_NAME, IS_SECURE);
+        ServiceInstance instance = discoveryClient.getInstances(GRPC_SERVER_NAME)
+                .stream()
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
 
-        System.out.println(instance.getIPAddr() + ":" + instance.getPort());
+        System.out.println(instance.getUri() + ":" + instance.getPort());
 
         ManagedChannel managedChannel = ManagedChannelBuilder
-                .forAddress(instance.getIPAddr(), instance.getPort())
+                .forAddress(instance.getUri().getHost(), instance.getPort())
                 .usePlaintext().build();
 
 

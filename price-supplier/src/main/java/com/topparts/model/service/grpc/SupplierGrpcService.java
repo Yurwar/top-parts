@@ -1,14 +1,16 @@
 package com.topparts.model.service.grpc;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
 import com.topparts.grpc.product.Name;
 import com.topparts.grpc.product.SupplierServiceGrpc;
 import com.topparts.model.entity.Supplier;
 import com.topparts.model.service.SupplierService;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Service
 public class SupplierGrpcService implements SupplierService {
@@ -16,22 +18,24 @@ public class SupplierGrpcService implements SupplierService {
     private static final boolean IS_SECURE = false;
 
     private SupplierServiceGrpc.SupplierServiceBlockingStub supplierServiceBlockingStub;
-    private EurekaClient discoveryClient;
+    private DiscoveryClient discoveryClient;
 
-    public SupplierGrpcService(EurekaClient discoveryClient) {
+    public SupplierGrpcService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
         refreshConnection();
     }
 
     public void refreshConnection() {
-        InstanceInfo instance = discoveryClient.getNextServerFromEureka(GRPC_SERVER_NAME, IS_SECURE);
+        ServiceInstance instance = discoveryClient.getInstances(GRPC_SERVER_NAME)
+                .stream()
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
 
-        System.out.println(instance.getIPAddr() + ":" + instance.getPort());
+        System.out.println(instance.getUri() + ":" + instance.getPort());
 
         ManagedChannel managedChannel = ManagedChannelBuilder
-                .forAddress(instance.getIPAddr(), instance.getPort())
+                .forAddress(instance.getUri().getHost(), instance.getPort())
                 .usePlaintext().build();
-
 
         supplierServiceBlockingStub =
                 SupplierServiceGrpc.newBlockingStub(managedChannel);
