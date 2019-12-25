@@ -1,6 +1,7 @@
 package com.topparts.model.service.grpc;
 
 import com.google.protobuf.Empty;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.topparts.grpc.product.Id;
 import com.topparts.grpc.product.Query;
 import com.topparts.grpc.product.TopPartsSupplierProductServiceGrpc;
@@ -59,6 +60,7 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "products", key = "#id")
+    @HystrixCommand(fallbackMethod = "returnEmptyList")
     public Optional<Product> getProductById(Long id) {
         Id grpcId = Id.newBuilder().setId(id).build();
 
@@ -73,6 +75,7 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "products")
+    @HystrixCommand(fallbackMethod = "returnEmptyList")
     public List<Product> getAllProducts() {
         List<Product> result = new ArrayList<>();
         System.out.println("Getting all products");
@@ -86,6 +89,7 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "products", key = "#query.toLowerCase().trim()")
+    @HystrixCommand(fallbackMethod = "returnEmptyList")
     public List<Product> getAllProductsBySearchQuery(String query) {
         List<Product> result = new ArrayList<>();
         Query grpcQuery = Query.newBuilder().setQuery(query).build();

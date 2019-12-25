@@ -1,6 +1,7 @@
 package com.topparts.model.service.grpc;
 
 import com.google.protobuf.Empty;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.topparts.grpc.product.PriceSupplierProductServiceGrpc;
 import com.topparts.grpc.product.Query;
 import com.topparts.model.entity.Product;
@@ -58,6 +59,7 @@ public class PriceGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "priceSupplierProducts")
+    @HystrixCommand(fallbackMethod = "returnEmptyList")
     public List<Product> getAllProducts() {
         List<Product> result = new ArrayList<>();
         System.out.println("Getting all products");
@@ -70,6 +72,7 @@ public class PriceGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "priceSupplierProducts", key = "#query.toLowerCase().trim()")
+    @HystrixCommand(fallbackMethod = "returnEmptyList")
     public List<Product> getAllProductsBySearchQuery(String query) {
         List<Product> result = new ArrayList<>();
         Query grpcQuery = Query.newBuilder().setQuery(query).build();
@@ -90,5 +93,9 @@ public class PriceGrpcSupplierService implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         throw new UnsupportedOperationException();
+    }
+
+    public List<Product> returnEmptyList() {
+        return new ArrayList<>();
     }
 }
