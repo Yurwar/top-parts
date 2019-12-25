@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-supplier-deployment
+  labels:
+    app: search-supplier-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search-supplier-service
+  template:
+    metadata:
+      labels:
+        app: search-supplier-service
+    spec:
+      containers:
+        - name: search-supplier-service
+          image: yurwar/search-supplier
+          ports:
+            - containerPort: 8088
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-supplier-service
+spec:
+  selector:
+    app: search-supplier-service
+  ports:
+    - port: 8088
+      targetPort: 8088
+      nodePort: 30014
+  type: LoadBalancer
