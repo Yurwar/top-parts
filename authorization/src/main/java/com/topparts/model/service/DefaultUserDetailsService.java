@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -26,5 +27,9 @@ public class DefaultUserDetailsService implements UserDetailsService {
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
