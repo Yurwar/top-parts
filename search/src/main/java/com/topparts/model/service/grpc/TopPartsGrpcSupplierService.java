@@ -31,7 +31,6 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     public TopPartsGrpcSupplierService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
-        refreshConnection();
     }
 
     public void refreshConnection() {
@@ -52,16 +51,19 @@ public class TopPartsGrpcSupplierService implements ProductService {
     }
 
     @Override
+    @HystrixCommand(fallbackMethod = "defaultCreateProduct")
     @CachePut(value = "products", key = "#product.getId()")
     public void createProduct(Product product) {
+        refreshConnection();
         com.topparts.grpc.product.Product grpcProduct = Converter.convertEntityProductToGrpc(product);
         topPartsSupplierProductServiceBlockingStub.createProduct(grpcProduct);
     }
 
     @Override
     @Cacheable(value = "products", key = "#id")
-    @HystrixCommand(fallbackMethod = "returnEmptyList")
+    @HystrixCommand(fallbackMethod = "defaultGetProductById")
     public Optional<Product> getProductById(Long id) {
+        refreshConnection();
         Id grpcId = Id.newBuilder().setId(id).build();
 
         com.topparts.grpc.product.Product product = topPartsSupplierProductServiceBlockingStub.getProductById(grpcId);
@@ -75,8 +77,9 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "products")
-    @HystrixCommand(fallbackMethod = "returnEmptyList")
+    @HystrixCommand(fallbackMethod = "defaultGetAllProducts")
     public List<Product> getAllProducts() {
+        refreshConnection();
         List<Product> result = new ArrayList<>();
         System.out.println("Getting all products");
         Iterator<com.topparts.grpc.product.Product> products =
@@ -89,8 +92,9 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "products", key = "#query.toLowerCase().trim()")
-    @HystrixCommand(fallbackMethod = "returnEmptyList")
+    @HystrixCommand(fallbackMethod = "defaultGetAllProductsBySearchQuery")
     public List<Product> getAllProductsBySearchQuery(String query) {
+        refreshConnection();
         List<Product> result = new ArrayList<>();
         Query grpcQuery = Query.newBuilder().setQuery(query).build();
 
@@ -104,7 +108,9 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     @Override
     @CachePut(value = "products", key = "#id")
+    @HystrixCommand(fallbackMethod = "defaultUpdateProduct")
     public void updateProduct(Long id, Product product) {
+        refreshConnection();
         UpdateRequest updateRequest = UpdateRequest.newBuilder()
                 .setId(Id.newBuilder().setId(id).build())
                 .setProduct(Converter.convertEntityProductToGrpc(product))
@@ -115,9 +121,33 @@ public class TopPartsGrpcSupplierService implements ProductService {
 
     @Override
     @CacheEvict(value = "products", key = "#id")
+    @HystrixCommand(fallbackMethod = "defaultDeleteProduct")
     public void deleteProduct(Long id) {
+        refreshConnection();
         Id grpcId = Id.newBuilder().setId(id).build();
 
         topPartsSupplierProductServiceBlockingStub.deleteProduct(grpcId);
     }
+
+    public void defaultCreateProduct(Product product) {
+    }
+
+    public Optional<Product> defaultGetProductById(Long id) {
+        return Optional.empty();
+    }
+
+    public List<Product> defaultGetAllProducts() {
+        return new ArrayList<>();
+    }
+
+    public List<Product> defaultGetAllProductsBySearchQuery(String query) {
+        return new ArrayList<>();
+    }
+
+    public void defaultUpdateProduct(Long id, Product product) {
+    }
+
+    public void defaultDeleteProduct(Long id) {
+    }
+
 }

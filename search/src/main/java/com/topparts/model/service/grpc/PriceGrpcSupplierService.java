@@ -27,7 +27,6 @@ public class PriceGrpcSupplierService implements ProductService {
 
     public PriceGrpcSupplierService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
-        refreshConnection();
     }
 
     public void refreshConnection() {
@@ -59,8 +58,9 @@ public class PriceGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "priceSupplierProducts")
-    @HystrixCommand(fallbackMethod = "returnEmptyList")
+    @HystrixCommand(fallbackMethod = "defaultGetAllProducts")
     public List<Product> getAllProducts() {
+        refreshConnection();
         List<Product> result = new ArrayList<>();
         System.out.println("Getting all products");
         Iterator<com.topparts.grpc.product.Product> products =
@@ -72,8 +72,9 @@ public class PriceGrpcSupplierService implements ProductService {
 
     @Override
     @Cacheable(value = "priceSupplierProducts", key = "#query.toLowerCase().trim()")
-    @HystrixCommand(fallbackMethod = "returnEmptyList")
+    @HystrixCommand(fallbackMethod = "defaultGetAllProductsBySearchQuery")
     public List<Product> getAllProductsBySearchQuery(String query) {
+        refreshConnection();
         List<Product> result = new ArrayList<>();
         Query grpcQuery = Query.newBuilder().setQuery(query).build();
 
@@ -95,7 +96,11 @@ public class PriceGrpcSupplierService implements ProductService {
         throw new UnsupportedOperationException();
     }
 
-    public List<Product> returnEmptyList() {
+    public List<Product> defaultGetAllProducts() {
+       return new ArrayList<>();
+    }
+
+    public List<Product> defaultGetAllProductsBySearchQuery(String query) {
         return new ArrayList<>();
     }
 }
