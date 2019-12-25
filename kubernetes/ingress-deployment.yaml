@@ -11,16 +11,16 @@ spec:
           - path: /authorization
             backend:
               serviceName: authorization-service
-              servicePort: 30008
+              servicePort: 8083
           - path: /graphql
             backend:
               serviceName: graphql-service
-              servicePort: 30010
+              servicePort: 8090
           - path: /purchase
-              backend:
-                serviceName: purchase-service
-                servicePort: 30012
+            backend:
+              serviceName: purchase-service
+              servicePort: 8082
           - path: /search
-              backend:
-                serviceName: search-service
-                servicePort: 30013
+            backend:
+              serviceName: search-service
+              servicePort: 8085
