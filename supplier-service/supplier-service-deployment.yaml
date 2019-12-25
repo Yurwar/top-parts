@@ -19,6 +19,13 @@ spec:
           image: yurwar/supplier
           ports:
             - containerPort: 8089
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: SPRING_DATASOURCE_URL
+              value: 'jdbc:mysql://mysql:3306/topparts_db?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false'
 ---
 apiVersion: v1
 kind: Service

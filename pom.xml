@@ -13,6 +13,7 @@
 		<module>search-supplier</module>
 		<module>supplier-service</module>
         <module>graphql</module>
+        <module>test</module>
     </modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
