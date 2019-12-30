@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: purchase-deployment
+  labels:
+    app: purchase-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: purchase-service
+  template:
+    metadata:
+      labels:
+        app: purchase-service
+    spec:
+      containers:
+        - name: purchase-service
+          image: yurwar/purchase
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: SPRING_DATASOURCE_URL
+              value: 'jdbc:mysql://mysql:3306/orders_db?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: purchase-service
+spec:
+  selector:
+    app: purchase-service
+  ports:
+    - port: 8082
+      targetPort: 8082
+      nodePort: 30012
+  type: LoadBalancer

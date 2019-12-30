@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /authorization
+            backend:
+              serviceName: authorization-service
+              servicePort: 8083
+          - path: /graphql
+            backend:
+              serviceName: graphql-service
+              servicePort: 8090
+          - path: /purchase
+            backend:
+              serviceName: purchase-service
+              servicePort: 8082
+          - path: /search
+            backend:
+              serviceName: search-service
+              servicePort: 8085

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: top-parts-supplier-deployment
+  labels:
+    app: top-parts-supplier-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: top-parts-supplier-service
+  template:
+    metadata:
+      labels:
+        app: top-parts-supplier-service
+    spec:
+      containers:
+        - name: top-parts-supplier-service
+          image: yurwar/top-parts-supplier
+          ports:
+            - containerPort: 8086
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: SPRING_DATASOURCE_URL
+              value: 'jdbc:mysql://mysql:3306/topparts_db?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: top-parts-supplier-service
+spec:
+  selector:
+    app: top-parts-supplier-service
+  ports:
+    - port: 8086
+      targetPort: 8086
+      nodePort: 30016
+  type: LoadBalancer

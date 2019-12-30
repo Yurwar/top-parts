@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+package com.topparts.grpc.product;
+
+message Supplier {
+    int64 id = 1;
+    string name = 2;
+}
+
+message Name {
+    string name = 1;
+}
+
+service SupplierService {
+    rpc getSupplierByName (Name) returns (Supplier) {}
+}

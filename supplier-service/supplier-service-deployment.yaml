@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supplier-deployment
+  labels:
+    app: supplier-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supplier-service
+  template:
+    metadata:
+      labels:
+        app: supplier-service
+    spec:
+      containers:
+        - name: supplier-service
+          image: yurwar/supplier
+          ports:
+            - containerPort: 8089
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
+            - name: SPRING_DATASOURCE_URL
+              value: 'jdbc:mysql://mysql:3306/topparts_db?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supplier-service
+spec:
+  selector:
+    app: supplier-service
+  ports:
+    - port: 8089
+      targetPort: 8089
+      nodePort: 30015
+  type: LoadBalancer
